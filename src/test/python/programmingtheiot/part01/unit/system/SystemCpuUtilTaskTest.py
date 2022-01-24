@@ -35,7 +35,6 @@ class SystemCpuUtilTaskTest(unittest.TestCase):
 
 	def testGetTelemetryValue(self):
 		val = self.cpuUtilTask.getTelemetryValue()
-		
 		self.assertGreaterEqual(val, 0.0)
 		logging.info("CPU utilization: %s", str(val))
 

@@ -22,5 +22,6 @@ class SystemCpuUtilTask(BaseSystemUtilTask):
 		pass
 	
 	def getTelemetryValue(self) -> float:
-		pass
+		return psutil.cpu_percent()
+		#pass
 		
