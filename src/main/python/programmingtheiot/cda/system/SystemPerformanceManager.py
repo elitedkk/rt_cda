@@ -28,16 +28,47 @@ class SystemPerformanceManager(object):
 	"""
 
 	def __init__(self):
-		pass
+		configUtil = ConfigUtil()
+		
+		#Set the member variables based on the configuration constants
+		self.pollRate   = configUtil.getInteger(section = ConfigConst.CONSTRAINED_DEVICE, key = ConfigConst.POLL_CYCLES_KEY, defaultVal = ConfigConst.DEFAULT_POLL_CYCLES)
+		self.locationID = configUtil.getProperty(section = ConfigConst.CONSTRAINED_DEVICE, key = ConfigConst.DEVICE_LOCATION_ID_KEY, defaultVal = ConfigConst.NOT_SET)
+		
+		#Set to default if pollrate is negative
+		if self.pollRate <= 0:
+			self.pollRate = ConfigConst.DEFAULT_POLL_CYCLES
+		
+		#Start a thread scheduler which will Handle Telemetry which will run at defined interval	
+		self.scheduler = BackgroundScheduler()
+		self.scheduler.add_job(self.handleTelemetry, 'interval', seconds = self.pollRate)
+		
+		#New Object
+		self.cpuUtilTask = SystemCpuUtilTask()
+		self.memUtilTask = SystemMemUtilTask()
+		
+		self.dataMsgListener = None
 
 	def handleTelemetry(self):
-		pass
+		#Gets value of CPU and memory usage
+		self.cpuUtilPct = self.cpuUtilTask.getTelemetryValue()
+		self.memUtilPct = self.memUtilTask.getTelemetryValue()
+		logging.debug('CPU utilization is %s percent, and memory utilization is %s percent.', str(self.cpuUtilPct), str(self.memUtilPct))
 		
 	def setDataMessageListener(self, listener: IDataMessageListener) -> bool:
 		pass
 	
 	def startManager(self):
-		pass
+		#Start the scheduling of threads which will run telemetry handling if not already started
+		if not self.scheduler.running:
+			self.scheduler.start()
+			logging.info("System Performance Manager started")
+		else:
+			logging.warning("SystemPerformanceManager scheduler already started. Ignoring.")
 		
 	def stopManager(self):
-		pass
+		#Stop the Manager which stops the scheduling of threads
+		try:
+			self.scheduler.shutdown()
+			logging.info("System Performance Manager stopped")
+		except:
+			logging.warning("SystemPerformanceManager scheduler already stopped. Ignoring.")

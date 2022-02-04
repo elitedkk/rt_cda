@@ -13,6 +13,7 @@
 import logging
 
 from time import sleep
+from programmingtheiot.cda.system.SystemPerformanceManager import SystemPerformanceManager
 
 logging.basicConfig(format = '%(asctime)s:%(name)s:%(levelname)s:%(message)s', level = logging.DEBUG)
 
@@ -29,8 +30,9 @@ class ConstrainedDeviceApp():
 		@param path The name of the resource to apply to the URI.
 		"""
 		logging.info("Initializing CDA...")
-		
 		# TODO: implementation here
+		#Create System Performance Manager
+		self.sysPerfManager = SystemPerformanceManager()
 
 	def startApp(self):
 		"""
@@ -40,7 +42,8 @@ class ConstrainedDeviceApp():
 		logging.info("Starting CDA...")
 		
 		# TODO: implementation here
-		
+		#Start the Performance Manager which repeatedly schedules calculation of telemtry
+		self.sysPerfManager.startManager()
 		logging.info("CDA started.")
 
 	def stopApp(self, code: int):
@@ -51,7 +54,8 @@ class ConstrainedDeviceApp():
 		logging.info("CDA stopping...")
 		
 		# TODO: implementation here
-		
+		#stop the Performance Manager
+		self.sysPerfManager.stopManager()
 		logging.info("CDA stopped with exit code %s.", str(code))
 		
 	def parseArgs(self, args):
@@ -72,8 +76,8 @@ def main():
 	cda = ConstrainedDeviceApp()
 	cda.startApp()
 	
-	# run for 10 seconds - this can be changed as needed
-	sleep(10)
+	# run for 65 seconds - this can be changed as needed
+	sleep(65)
 	
 	# optionally stop the app - this can be removed if needed
 	cda.stopApp(0)
