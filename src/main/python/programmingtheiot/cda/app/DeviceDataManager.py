@@ -16,11 +16,15 @@ from programmingtheiot.cda.system.ActuatorAdapterManager import ActuatorAdapterM
 from programmingtheiot.cda.system.SensorAdapterManager import SensorAdapterManager
 from programmingtheiot.cda.system.SystemPerformanceManager import SystemPerformanceManager
 
-from programmingtheiot.common.IDataMessageListener import IDataMessageListener
+import programmingtheiot.common.ConfigConst as ConfigConst
+
+from programmingtheiot.common.ConfigUtil import ConfigUtil
 from programmingtheiot.common.ISystemPerformanceDataListener import ISystemPerformanceDataListener
 from programmingtheiot.common.ITelemetryDataListener import ITelemetryDataListener
+from programmingtheiot.common.IDataMessageListener import IDataMessageListener
 from programmingtheiot.common.ResourceNameEnum import ResourceNameEnum
 
+from programmingtheiot.data.DataUtil import DataUtil
 from programmingtheiot.data.ActuatorData import ActuatorData
 from programmingtheiot.data.SensorData import SensorData
 from programmingtheiot.data.SystemPerformanceData import SystemPerformanceData
@@ -32,7 +36,20 @@ class DeviceDataManager(IDataMessageListener):
 	"""
 	
 	def __init__(self):
-		pass
+		self.configUtil = ConfigUtil()
+		
+		self.sysPerfMgr = SystemPerformanceManager()
+		self.sysPerfMgr.setDataMessageListener(self)
+		
+		self.sensorAdapterMgr = SensorAdapterManager()
+		self.sensorAdapterMgr.setDataMessageListener(self)
+		
+		self.actuatorAdapterMgr = ActuatorAdapterManager()
+		self.actuatorAdapterMgr.setDataMessageListener(self)
+		
+		self.handleTempChangeOnDevice = self.configUtil.getBoolean(ConfigConst.CONSTRAINED_DEVICE, ConfigConst.HANDLE_TEMP_CHANGE_ON_DEVICE_KEY)
+		self.triggerHvacTempFloor = self.configUtil.getFloat(ConfigConst.CONSTRAINED_DEVICE, ConfigConst.TRIGGER_HVAC_TEMP_FLOOR_KEY);
+		self.triggerHvacTempCeiling = self.configUtil.getFloat(ConfigConst.CONSTRAINED_DEVICE, ConfigConst.TRIGGER_HVAC_TEMP_CEILING_KEY);
 		
 	def getLatestActuatorDataResponseFromCache(self, name: str = None) -> ActuatorData:
 		"""
@@ -69,7 +86,9 @@ class DeviceDataManager(IDataMessageListener):
 		@param data The incoming ActuatorData command message.
 		@return boolean
 		"""
-		pass
+		logging.info('Handling the Actuator Command Message')
+		if isinstance(data, ActuatorData):
+			self.actuatorAdapterMgr.sendActuatorCommand(data)
 	
 	def handleActuatorCommandResponse(self, data: ActuatorData) -> bool:
 		"""
@@ -80,8 +99,10 @@ class DeviceDataManager(IDataMessageListener):
 		@param data The incoming ActuatorData response message.
 		@return boolean
 		"""
-		pass
-	
+		logging.info('Handling the Actuator Command Response')
+		#self._handleUpstreamTransmission(ResourceNameEnum.CDA_ACTUATOR_RESPONSE_RESOURCE, data)		
+		self._handleUpstreamTransmission(ResourceNameEnum.CDA_ACTUATOR_RESPONSE_RESOURCE, data)		
+		
 	def handleIncomingMessage(self, resourceEnum: ResourceNameEnum, msg: str) -> bool:
 		"""
 		This callback method is generic and designed to handle any incoming string-based
@@ -91,7 +112,8 @@ class DeviceDataManager(IDataMessageListener):
 		@param data The incoming JSON message.
 		@return boolean
 		"""
-		pass
+		logging.info('Handling the incoming message')
+		self._handleIncomingDataAnalysis(msg)
 	
 	def handleSensorMessage(self, data: SensorData) -> bool:
 		"""
@@ -102,7 +124,9 @@ class DeviceDataManager(IDataMessageListener):
 		@param data The incoming SensorData message.
 		@return boolean
 		"""
-		pass
+		logging.info('Handling the sensor message')
+		self._handleUpstreamTransmission(ResourceNameEnum.CDA_SENSOR_MSG_RESOURCE, data)
+		
 	
 	def handleSystemPerformanceMessage(self, data: SystemPerformanceData) -> bool:
 		"""
@@ -113,7 +137,8 @@ class DeviceDataManager(IDataMessageListener):
 		@param data The incoming SystemPerformanceData message.
 		@return boolean
 		"""
-		pass
+		logging.info('Handling the System Performance message')
+		self._handleUpstreamTransmission(ResourceNameEnum.CDA_SYSTEM_PERF_MSG_RESOURCE,data)
 	
 	def setSystemPerformanceDataListener(self, listener: ISystemPerformanceDataListener = None):
 		pass
@@ -122,10 +147,17 @@ class DeviceDataManager(IDataMessageListener):
 		pass
 			
 	def startManager(self):
-		pass
+		logging.info('Starting the Manager')
+		if self.sysPerfMgr:
+			self.sysPerfMgr.startManager()
+		if self.sensorAdapterMgr:
+			self.sensorAdapterMgr.startManager()
 		
 	def stopManager(self):
-		pass
+		if self.sysPerfMgr:
+			self.sysPerfMgr.stopManager()
+		if self.sensorAdapterMgr:
+			self.sensorAdapterMgr.stopManager()
 		
 	def _handleIncomingDataAnalysis(self, msg: str):
 		"""
@@ -135,7 +167,8 @@ class DeviceDataManager(IDataMessageListener):
 		2) Convert msg: Use DataUtil to convert if appropriate.
 		3) Act on msg: Determine what - if any - action is required, and execute.
 		"""
-		pass
+		logging.debug('Handling the Incoming data analysis')
+		
 		
 	def _handleSensorDataAnalysis(self, data: SensorData):
 		"""
@@ -144,7 +177,9 @@ class DeviceDataManager(IDataMessageListener):
 		1) Check config: Is there a rule or flag that requires immediate processing of data?
 		2) Act on data: If # 1 is true, determine what - if any - action is required, and execute.
 		"""
-		pass
+		logging.debug('Handling the Sensor Data Analysis')
+		if self.enableHandleTempChangeOnDevice:
+			pass
 		
 	def _handleUpstreamTransmission(self, resourceName: ResourceNameEnum, msg: str):
 		"""
@@ -153,4 +188,4 @@ class DeviceDataManager(IDataMessageListener):
 		1) Check connection: Is there a client connection configured (and valid) to a remote MQTT or CoAP server?
 		2) Act on msg: If # 1 is true, send message upstream using one (or both) client connections.
 		"""
-		pass
+		logging.info('Handling Upstream Transmission')

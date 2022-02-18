@@ -9,6 +9,7 @@
 
 from programmingtheiot.data.ActuatorData import ActuatorData
 from programmingtheiot.cda.sim.BaseActuatorSimTask import BaseActuatorSimTask
+import programmingtheiot.common.ConfigConst as ConfigConst
 
 class HumidifierActuatorSimTask(BaseActuatorSimTask):
 	"""
@@ -21,5 +22,5 @@ class HumidifierActuatorSimTask(BaseActuatorSimTask):
 	"""
 
 	def __init__(self):
-		pass
+		super(HumidifierActuatorSimTask, self).__init__(typeID = ConfigConst.HUMIDIFIER_ACTUATOR_TYPE, name = ConfigConst.HUMIDIFIER_ACTUATOR_NAME, simpleName = "HUMIDIFIER")
 		

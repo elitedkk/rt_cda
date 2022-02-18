@@ -13,32 +13,43 @@ from programmingtheiot.data.BaseIotData import BaseIotData
 
 class SystemPerformanceData(BaseIotData):
 	"""
-	Shell representation of class for student implementation.
+	Class that interacts with the System parameters
 	
 	"""
 	DEFAULT_VAL = 0.0
 	
 	def __init__(self, d = None):
 		super(SystemPerformanceData, self).__init__(name = ConfigConst.SYSTEM_PERF_MSG, typeID = ConfigConst.SYSTEM_PERF_TYPE, d = d)
-		pass
+		self.cpuUtil = ConfigConst.DEFAULT_VAL
+		self.memUtil = ConfigConst.DEFAULT_VAL
 	
 	def getCpuUtilization(self):
-		pass
+		return self.cpuUtil
 	
 	def getDiskUtilization(self):
 		pass
 	
 	def getMemoryUtilization(self):
-		pass
+		return self.memUtil
 	
 	def setCpuUtilization(self, cpuUtil):
-		pass
+		self.cpuUtil = cpuUtil
+		self.updateTimeStamp()
 	
 	def setDiskUtilization(self, diskUtil):
 		pass
 	
 	def setMemoryUtilization(self, memUtil):
-		pass
+		self.memUtil = memUtil
+		self.updateTimeStamp()
 	
 	def _handleUpdateData(self, data):
-		pass
+		"""
+		Updates the Utilization of CDA.
+		
+		@param data Updates the utilization of the CDA
+		"""
+		if data and isinstance(data, SystemPerformanceData):
+			self.cpuUtil = data.getCpuUtilization()
+			self.memUtil = data.getMemoryUtilization()
+			#self.diskUtil = data.getDiskUtilization()

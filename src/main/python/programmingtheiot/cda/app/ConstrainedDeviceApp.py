@@ -14,7 +14,7 @@ import logging
 
 from time import sleep
 from programmingtheiot.cda.system.SystemPerformanceManager import SystemPerformanceManager
-
+from programmingtheiot.cda.app.DeviceDataManager import DeviceDataManager
 logging.basicConfig(format = '%(asctime)s:%(name)s:%(levelname)s:%(message)s', level = logging.DEBUG)
 
 class ConstrainedDeviceApp():
@@ -32,7 +32,8 @@ class ConstrainedDeviceApp():
 		logging.info("Initializing CDA...")
 		# TODO: implementation here
 		#Create System Performance Manager
-		self.sysPerfManager = SystemPerformanceManager()
+		#self.sysPerfManager = SystemPerformanceManager()
+		self.devDataMgr = DeviceDataManager()
 
 	def startApp(self):
 		"""
@@ -43,7 +44,8 @@ class ConstrainedDeviceApp():
 		
 		# TODO: implementation here
 		#Start the Performance Manager which repeatedly schedules calculation of telemtry
-		self.sysPerfManager.startManager()
+		#self.sysPerfManager.startManager()
+		self.devDataMgr.startManager()
 		logging.info("CDA started.")
 
 	def stopApp(self, code: int):
@@ -55,7 +57,8 @@ class ConstrainedDeviceApp():
 		
 		# TODO: implementation here
 		#stop the Performance Manager
-		self.sysPerfManager.stopManager()
+		#self.sysPerfManager.stopManager()
+		self.devDataMgr.stopManager()
 		logging.info("CDA stopped with exit code %s.", str(code))
 		
 	def parseArgs(self, args):
