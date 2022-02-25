@@ -20,6 +20,7 @@ from programmingtheiot.data.ActuatorData import ActuatorData
 from programmingtheiot.cda.sim.HvacActuatorSimTask import HvacActuatorSimTask
 from programmingtheiot.cda.sim.HumidifierActuatorSimTask import HumidifierActuatorSimTask
 from pickle import NONE
+from programmingtheiot.common.ResourceNameEnum import ResourceNameEnum
 
 class ActuatorAdapterManager(object):
 	"""
@@ -34,18 +35,25 @@ class ActuatorAdapterManager(object):
 		#self.dataMsgListener = dataMsgListener
 		self.configUtil = ConfigUtil()
 		self.useSimulator= self.configUtil.getBoolean(section=ConfigConst.CONSTRAINED_DEVICE, key=ConfigConst.ENABLE_SIMULATOR_KEY)
-		#self.useEmulator= self.configUtil.getBoolean(section=ConfigConst.CONSTRAINED_DEVICE, key=ConfigConst.ENABLE_EMULATOR_KEY)
+		self.useEmulator= self.configUtil.getBoolean(section=ConfigConst.CONSTRAINED_DEVICE, key=ConfigConst.ENABLE_EMULATOR_KEY)
 		self.locationID = self.configUtil.getProperty(section = ConfigConst.CONSTRAINED_DEVICE, key = ConfigConst.DEVICE_LOCATION_ID_KEY, defaultVal = ConfigConst.NOT_SET)
-		#if self.useEmulator:
-		#	logging.debug('Emulators will be used')
-		#else:
-		#	logging.debug('Simulators will be used')
+		if self.useEmulator:
+			logging.debug('Emulators will be used')
+		else:
+			logging.debug('Simulators will be used')
 			
 		# create the humidifier actuator
-		self.humidifierActuator = HumidifierActuatorSimTask()
-
+		self.humidifierActuator = None
 		# create the HVAC actuator
-		self.hvacActuator = HvacActuatorSimTask()
+		self.hvacActuator = None
+		self.ledDisplayActuator = None
+		self.resource = ResourceNameEnum.CDA_ACTUATOR_RESPONSE_RESOURCE
+		self.isEnvActuationActive = False
+		#self.dataMsgListener = False
+		self._initEnvironmentalActuationTasks()
+		
+		
+		
 		
 		#self.isEnvActuationActive = False
 		#self.initEnvironmentalActuationTasks()
@@ -84,4 +92,24 @@ class ActuatorAdapterManager(object):
 		"""
 		if listener is not None:
 			self.dataMsgListener = listener
+	def _initEnvironmentalActuationTasks(self):
+		if not self.useEmulator:
+			# load the environmental tasks for simulated actuation
+			self.humidifierActuator = HumidifierActuatorSimTask()
 			
+			# create the HVAC actuator
+			self.hvacActuator = HvacActuatorSimTask()
+		else:
+			hueModule = import_module('programmingtheiot.cda.emulated.HumidifierEmulatorTask', 'HumidiferEmulatorTask')
+			hueClazz = getattr(hueModule, 'HumidifierEmulatorTask')
+			self.humidifierActuator = hueClazz()
+			
+			# create the HVAC actuator emulator
+			hveModule = import_module('programmingtheiot.cda.emulated.HvacEmulatorTask', 'HvacEmulatorTask')
+			hveClazz = getattr(hveModule, 'HvacEmulatorTask')
+			self.hvacActuator = hveClazz()
+			
+			# create the LED display actuator emulator
+			leDisplayModule = import_module('programmingtheiot.cda.emulated.LedDisplayEmulatorTask', 'LedDisplayEmulatorTask')
+			leClazz = getattr(leDisplayModule, 'LedDisplayEmulatorTask')
+			self.ledDisplayActuator = leClazz()
