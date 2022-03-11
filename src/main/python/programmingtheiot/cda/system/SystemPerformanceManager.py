@@ -49,16 +49,34 @@ class SystemPerformanceManager(object):
 		self.dataMsgListener = None
 
 	def handleTelemetry(self):
+		"""
+		Gets CPU and memory utilizationn and sets a listener
+		
+		"""
 		#Gets value of CPU and memory usage
 		self.cpuUtilPct = self.cpuUtilTask.getTelemetryValue()
 		self.memUtilPct = self.memUtilTask.getTelemetryValue()
 		logging.debug('CPU utilization is %s percent, and memory utilization is %s percent.', str(self.cpuUtilPct), str(self.memUtilPct))
+		sysPerfData = SystemPerformanceData()
+		sysPerfData.setLocationID(self.locationID)
+		sysPerfData.setCpuUtilization(self.cpuUtilPct)
+		sysPerfData.setMemoryUtilization(self.memUtilPct)
 		
+		if self.dataMsgListener:
+			self.dataMsgListener.handleSystemPerformanceMessage(data = sysPerfData)
+			
 	def setDataMessageListener(self, listener: IDataMessageListener) -> bool:
-		pass
+		"""
+		Sets the listener to the passed listener
+		"""
+		if listener:
+			self.dataMsgListener = listener
 	
 	def startManager(self):
-		#Start the scheduling of threads which will run telemetry handling if not already started
+		"""
+		Start the scheduling of threads which will run telemetry handling if not already started
+		
+		"""
 		if not self.scheduler.running:
 			self.scheduler.start()
 			logging.info("System Performance Manager started")
@@ -66,7 +84,9 @@ class SystemPerformanceManager(object):
 			logging.warning("SystemPerformanceManager scheduler already started. Ignoring.")
 		
 	def stopManager(self):
-		#Stop the Manager which stops the scheduling of threads
+		"""
+		Stop the Manager which stops the scheduling of threads
+		"""
 		try:
 			self.scheduler.shutdown()
 			logging.info("System Performance Manager stopped")

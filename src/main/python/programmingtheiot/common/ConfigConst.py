@@ -69,7 +69,7 @@ LONGITUDE_PROP   = 'longitude'
 ELEVATION_PROP   = 'elevation'
 
 UPDATE_NOTIFICATIONS_MSG = 'updatemsg'
-
+DATA_GATEWAY_SERVICE = 'Data.GatewayService'
 COMMAND_PROP     = 'command'
 STATE_DATA_PROP  = 'stateData'
 VALUE_PROP       = 'value'
