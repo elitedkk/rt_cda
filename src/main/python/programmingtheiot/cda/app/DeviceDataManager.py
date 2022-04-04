@@ -15,7 +15,7 @@ from programmingtheiot.cda.connection.MqttClientConnector import MqttClientConne
 from programmingtheiot.cda.system.ActuatorAdapterManager import ActuatorAdapterManager
 from programmingtheiot.cda.system.SensorAdapterManager import SensorAdapterManager
 from programmingtheiot.cda.system.SystemPerformanceManager import SystemPerformanceManager
-
+from programmingtheiot.cda.connection.CoapServerAdapter import CoapServerAdapter
 import programmingtheiot.common.ConfigConst as ConfigConst
 
 from programmingtheiot.common.ConfigUtil import ConfigUtil
@@ -25,8 +25,8 @@ from programmingtheiot.common.IDataMessageListener import IDataMessageListener
 from programmingtheiot.common.ResourceNameEnum import ResourceNameEnum
 
 from programmingtheiot.data.DataUtil import DataUtil
-from programmingtheiot.data.ActuatorData import ActuatorData
 from programmingtheiot.data.SensorData import SensorData
+from programmingtheiot.data.ActuatorData import ActuatorData
 from programmingtheiot.data.SystemPerformanceData import SystemPerformanceData
 
 class DeviceDataManager(IDataMessageListener):
@@ -59,6 +59,13 @@ class DeviceDataManager(IDataMessageListener):
 		if self.enableMqttClient:
 			self.mqttClient = MqttClientConnector()
 			self.mqttClient.setDataMessageListener(self)
+		
+		self.enableCoapClient = \
+			self.configUtil.getBoolean( \
+				section = ConfigConst.CONSTRAINED_DEVICE, key = ConfigConst.ENABLE_COAP_CLIENT_KEY)
+		
+		if self.enableCoapClient :
+			self.coapClient = CoapClientConnector(dataMsgListener = self)
 		
 	def getLatestActuatorDataResponseFromCache(self, name: str = None) -> ActuatorData:
 		"""

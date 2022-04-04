@@ -8,7 +8,6 @@
 #
 
 import logging
-
 from apscheduler.schedulers.background import BackgroundScheduler
 
 import programmingtheiot.common.ConfigConst as ConfigConst
