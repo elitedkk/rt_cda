@@ -18,9 +18,8 @@ from programmingtheiot.cda.connection.MqttClientConnector import MqttClientConne
 from programmingtheiot.common.ResourceNameEnum import ResourceNameEnum
 from programmingtheiot.data.DataUtil import DataUtil
 from programmingtheiot.data.ActuatorData import ActuatorData
-from programmingtheiot.common import ConfigConst
 
-class DeviceDataManagerCallbackTest(unittest.TestCase):
+class DeviceDataManagerIntegrationTest(unittest.TestCase):
 	"""
 	This test case class contains very basic integration tests for
 	DeviceDataManager. It should not be considered complete,
@@ -54,19 +53,19 @@ class DeviceDataManagerCallbackTest(unittest.TestCase):
 	def tearDown(self):
 		pass
 
-	def testActuatorDataCallback(self):
-		#ddMgr = DeviceDataManager(enableMqtt = False, enableCoap = False)
+	def testDeviceDataMgrTimedIntegration(self):
+		# OPTION 1: For MQTT testing - be sure the MQTT client is enabled in `PiotConfig.props`.
+		#           and your MQTT broker is running (as per the Setup instructions above).
+		# OPTION 2: For CoAP testing - be sure the CoAP client is enabled in `PiotConfig.props`,
+		#           and your CoAP server is running within your GDA.
 		ddMgr = DeviceDataManager()
-		ddMgr.enableCoapClient=False
-		ddMgr.enableMqttClient=False
-		actuatorData = ActuatorData(ConfigConst.HVAC_ACTUATOR_TYPE)
-		actuatorData.setCommand(ConfigConst.COMMAND_ON)
-		actuatorData.setStateData("This is a test.")
+		ddMgr.startManager()
 		
-		ddMgr.handleActuatorCommandMessage(actuatorData)
+		# 5 min's should be long enough to run the tests and manually adjust the emulator values
+		sleep(300)
 		
-		sleep(10)
-		
+		ddMgr.stopManager()
+
 if __name__ == "__main__":
 	unittest.main()
 	

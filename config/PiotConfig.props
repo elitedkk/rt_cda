@@ -12,14 +12,14 @@
 #
 [Mqtt.GatewayService]
 credFile       = ./cred/PiotMqttLocalCred.props
-certFile       = ./cert/PiotMqttLocalCertFile.pem
-host           = localhost
+certFile       = /home/ishan/workbox/connecteddevices/cda-lab-modules-elitedkk/cert/ca.crt
+host           = k1Ra
 port           = 1883
 securePort     = 8883
 defaultQoS     = 0
 keepAlive      = 60
 enableAuth     = False
-enableCrypt    = False
+enableCrypt    = True
 
 #
 # CoAP client configuration information
@@ -31,7 +31,7 @@ host           = localhost
 port           = 5683
 securePort     = 5684
 enableAuth     = False
-enableCrypt    = False
+enableCrypt    = True
 
 #
 # CDA specific configuration information
@@ -39,7 +39,7 @@ enableCrypt    = False
 [ConstrainedDevice]
 deviceLocationID = constraineddevice001
 enableEmulator   = True
-enableSenseHAT   = True
+enableSenseHAT   = False
 enableMqttClient = True
 enableCoapServer = False
 enableCoapClient = True

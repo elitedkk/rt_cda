@@ -44,7 +44,21 @@ class SensorData(BaseIotData):
 		"""
 		self.value = newVal
 		self.updateTimeStamp()
-		
+	
+	
+	def __str__(self):
+		return '{}={},{}={},{}={},{}={},{}={},{}={},{}={},{}={},{}={},{}={}'.format(
+			ConfigConst.NAME_PROP, self.name,
+			ConfigConst.TYPE_ID_PROP, self.typeID,
+			ConfigConst.TIMESTAMP_PROP, self.timeStamp,
+			ConfigConst.STATUS_CODE_PROP, self.statusCode,
+			ConfigConst.HAS_ERROR_PROP, self.hasError,
+			ConfigConst.LOCATION_ID_PROP, self.locationID,
+			ConfigConst.ELEVATION_PROP, self.elevation,
+			ConfigConst.LATITUDE_PROP, self.latitude,
+			ConfigConst.LONGITUDE_PROP, self.longitude,
+			ConfigConst.VALUE_PROP, self.value)
+	
 	def _handleUpdateData(self, data):
 		"""
 		Update the value of the sensor if data is an object of SensorData.

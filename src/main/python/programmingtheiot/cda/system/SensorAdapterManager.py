@@ -8,22 +8,18 @@
 #
 
 import logging
-
 from importlib import import_module
-
 from apscheduler.schedulers.background import BackgroundScheduler
-
 import programmingtheiot.common.ConfigConst as ConfigConst
-
 from programmingtheiot.common.ConfigUtil import ConfigUtil
 from programmingtheiot.common.IDataMessageListener import IDataMessageListener
-
 from programmingtheiot.cda.sim.SensorDataGenerator import SensorDataGenerator
 from programmingtheiot.cda.sim.HumiditySensorSimTask import HumiditySensorSimTask
 from programmingtheiot.cda.sim.TemperatureSensorSimTask import TemperatureSensorSimTask
 from programmingtheiot.cda.sim.PressureSensorSimTask import PressureSensorSimTask
 from pickle import FALSE, TRUE
 from programmingtheiot.common.ResourceNameEnum import ResourceNameEnum
+from uaclient.conftest import logging_sandbox
 
 class SensorAdapterManager():
 	"""
@@ -34,21 +30,26 @@ class SensorAdapterManager():
 	def __init__(self):
 		self.configUtil = ConfigUtil()
 		self.pollRate = self.configUtil.getInteger(section = ConfigConst.CONSTRAINED_DEVICE,key=ConfigConst.POLL_CYCLES_KEY, defaultVal=ConfigConst.DEFAULT_POLL_CYCLES)
-		self.useSimulator = self.configUtil.getBoolean(section = ConfigConst.CONSTRAINED_DEVICE, key = ConfigConst.ENABLE_SIMULATOR_KEY)
+		#self.useSimulator = self.configUtil.getBoolean(section = ConfigConst.CONSTRAINED_DEVICE, key = ConfigConst.ENABLE_SIMULATOR_KEY)
 		self.useEmulator = self.configUtil.getBoolean(section = ConfigConst.CONSTRAINED_DEVICE, key = ConfigConst.ENABLE_EMULATOR_KEY)
+		#self.useEmulator = True
 		self.locationID = self.configUtil.getProperty(section = ConfigConst.CONSTRAINED_DEVICE, key = ConfigConst.DEVICE_LOCATION_ID_KEY, defaultVal = ConfigConst.NOT_SET)
 		self.useSenseHat = self.configUtil.getBoolean(section = ConfigConst.CONSTRAINED_DEVICE, key = ConfigConst.ENABLE_SENSE_HAT_KEY)
+		logging.debug('Sensor Adapter Manager Init with emulator= ' + str(self.useEmulator))
 		self.useSenseHatI2CBus = False
 		if self.pollRate <= 0:
 			self.pollRate = ConfigConst.DEFAULT_POLL_CYCLES
-			
+		
 		self.scheduler = BackgroundScheduler()
 		self.scheduler.add_job(self.handleTelemetry, 'interval', seconds = self.pollRate)
 		
+		
 		self.resource = ResourceNameEnum.CDA_SENSOR_MSG_RESOURCE
-		self.isEnvSensingActive = False
+		self.isEnvSensingActive = True
 		self.dataMsgListener = False
 		self._initEnvironmentalSensorTasks()
+		
+		
 		'''
 		configUtil = ConfigUtil()
 		tempFloor = configUtil.getFloat(section = ConfigConst.CONSTRAINED_DEVICE, key = ConfigConst.TEMP_SIM_FLOOR_KEY, defaultVal = SensorDataGenerator.LOW_NORMAL_INDOOR_TEMP)
@@ -75,6 +76,7 @@ class SensorAdapterManager():
 		"""
 		Gets the values of sensors. Callback function that is connected to data listener function
 		"""
+		#logging.debug("********ATTEMPTING HANDLE TELEMETRY")
 		if self.isEnvSensingActive:
 			tempData = self.tempAdapter.generateTelemetry()
 			pressureData = self.pressureAdapter.generateTelemetry()
@@ -109,6 +111,7 @@ class SensorAdapterManager():
 		self.scheduler.shutdown()
 	
 	def _initEnvironmentalSensorTasks(self):
+		logging.debug('Init Sensor Tasks')
 		humidityFloor   = \
 			self.configUtil.getFloat( \
 				section = ConfigConst.CONSTRAINED_DEVICE, key = ConfigConst.HUMIDITY_SIM_FLOOR_KEY, defaultVal = SensorDataGenerator.LOW_NORMAL_ENV_HUMIDITY)
@@ -148,6 +151,7 @@ class SensorAdapterManager():
 			self.tempAdapter     = TemperatureSensorSimTask(dataSet = tempData)
 	
 		else:
+			logging.debug("*************INITIATING EMULATOR TASKS**************")
 			heModule = import_module('programmingtheiot.cda.emulated.HumiditySensorEmulatorTask', 'HumiditySensorEmulatorTask')
 			heClazz = getattr(heModule, 'HumiditySensorEmulatorTask')
 			self.humidityAdapter = heClazz()

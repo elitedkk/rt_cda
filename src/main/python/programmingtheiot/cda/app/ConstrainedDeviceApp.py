@@ -56,9 +56,7 @@ class ConstrainedDeviceApp():
 		logging.info("CDA stopping...")
 		
 		# TODO: implementation here
-		#stop the Performance Manager
-		#self.sysPerfManager.stopManager()
-		self.devDataMgr.stopManager()
+		#stop the Performance Manager*
 		logging.info("CDA stopped with exit code %s.", str(code))
 		
 	def parseArgs(self, args):
@@ -80,7 +78,7 @@ def main():
 	cda.startApp()
 	
 	# run for 65 seconds - this can be changed as needed
-	sleep(65)
+	sleep(300)
 	
 	# optionally stop the app - this can be removed if needed
 	cda.stopApp(0)

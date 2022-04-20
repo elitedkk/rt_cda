@@ -19,7 +19,7 @@ from programmingtheiot.common.ResourceNameEnum import ResourceNameEnum
 from programmingtheiot.data.DataUtil import DataUtil
 from programmingtheiot.data.SensorData import SensorData
 
-class MqttClientConnectorTest(unittest.TestCase):
+class MqttClientPerformanceTest(unittest.TestCase):
 	"""
 	This test case class contains very basic unit tests for
 	MqttClientConnector. It should not be considered complete,
@@ -53,15 +53,15 @@ class MqttClientConnectorTest(unittest.TestCase):
 		
 		logging.info("Connect and Disconnect: " + str(elapsedMillis) + " ms")
 		
-	#@unittest.skip("Ignore for now.")
+	@unittest.skip("Ignore for now.")
 	def testPublishQoS0(self):
 		self._execTestPublish(self.MAX_TEST_RUNS, 0)
 
-	#@unittest.skip("Ignore for now.")
+	@unittest.skip("Ignore for now.")
 	def testPublishQoS1(self):
 		self._execTestPublish(self.MAX_TEST_RUNS, 1)
 
-	#@unittest.skip("Ignore for now.")
+	@unittest.skip("Ignore for now.")
 	def testPublishQoS2(self):
 		self._execTestPublish(self.MAX_TEST_RUNS, 2)
 
@@ -72,7 +72,6 @@ class MqttClientConnectorTest(unittest.TestCase):
 		payload = DataUtil().sensorDataToJson(sensorData)
 		payloadLen = len(payload)
 		startTime = time.time_ns()
-		
 		for seqNo in range(0, maxTestRuns):
 			self.mqttClient.publishMessage(resource = ResourceNameEnum.CDA_SENSOR_MSG_RESOURCE, msg = payload, qos = qos)
 			
@@ -81,11 +80,11 @@ class MqttClientConnectorTest(unittest.TestCase):
 		
 		self.assertTrue(self.mqttClient.disconnectClient())
 		
-		logging.info( \
-			"\n\tTesting Publish: QoS = %r | msgs = %r | payload size = %r | start = %r | end = %r | elapsed = %r", \
-			qos, maxTestRuns, payloadLen, startTime / 1000, endTime / 1000, elapsedMillis / 1000)
+		#logging.info( \
+		#	"\n\tTesting Publish: QoS = %r | msgs = %r | payload size = %r | start = %r | end = %r | elapsed = %r", \
+		#	qos, maxTestRuns, payloadLen, startTime / 1000, endTime / 1000, elapsedMillis / 1000)
 		
-		#logging.info("Publish message - QoS " + str(qos) + " [" + str(maxTestRuns) + "]: " + str(elapsedMillis) + " ms")
+		logging.info("Publish message - QoS " + str(qos) + " [" + str(maxTestRuns) + "]: " + str(elapsedMillis) + " ms")
 	
 if __name__ == "__main__":
 	unittest.main()

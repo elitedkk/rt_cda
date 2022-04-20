@@ -261,6 +261,8 @@ class CoapClientConnector(IRequestResponseClient):
 		
 		return resourcePath
 	
+		
+	
 class HandleActuatorEvent():
 	def __init__(self, \
 			listener: IDataMessageListener = None, \
@@ -275,6 +277,11 @@ class HandleActuatorEvent():
 			self.resource = ResourceNameEnum.CDA_ACTUATOR_CMD_RESOURCE
 			
 	def handleActuatorResponse(self, response):
+		"""
+		Received Actuator Response from the CDA. This function parses through the response and checks which command is sent
+		
+		@param response
+		"""
 		if response:
 			jsonData = response.payload
 			

@@ -6,7 +6,7 @@
 # implementation for the Programming the Internet of Things exercises,
 # and designed to be modified by the student as needed.
 #
-
+import logging
 from programmingtheiot.data.SensorData import SensorData
 
 import programmingtheiot.common.ConfigConst as ConfigConst
@@ -33,12 +33,14 @@ class HumiditySensorEmulatorTask(BaseSensorSimTask):
 				ConfigConst.CONSTRAINED_DEVICE, ConfigConst.ENABLE_EMULATOR_KEY)
 		
 		self.sh = SenseHAT(emulate = enableEmulation)
+		#self.sh = SenseHAT(emulate = True)
 	
 	def generateTelemetry(self) -> SensorData:
 		sensorData = SensorData(name = self.getName(), typeID = self.getTypeID())
 		sensorVal = self.sh.environ.humidity
-				
+		#logging.debug("******HUMIDITY EMULATOR DATA INBOUND********")
 		sensorData.setValue(sensorVal)
 		self.latestSensorData = sensorData
-		
+		#logging.debug('*********SENSOR DATA = ' + str(sensorData))
+		#logging.debug("*********SENSOR VALUE = " + str(sensorData.getValue()))
 		return sensorData

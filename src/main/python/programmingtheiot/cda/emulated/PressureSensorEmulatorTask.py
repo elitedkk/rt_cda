@@ -36,7 +36,6 @@ class PressureSensorEmulatorTask(BaseSensorSimTask):
 	def generateTelemetry(self) -> SensorData:
 		sensorData = SensorData(name = self.getName() , typeID = self.getTypeID())
 		sensorVal = self.sh.environ.pressure
-				
 		sensorData.setValue(sensorVal)
 		self.latestSensorData = sensorData
 		
